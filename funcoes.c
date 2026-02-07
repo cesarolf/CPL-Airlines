@@ -11,10 +11,10 @@ void inicializarAssentos( Assento *listaAssentos, int qtdAssentosOcupados ) {
     for(i = 0; i<TOTAL_ASSENTOS; i++) {
         if(i<qtdAssentosOcupados) {
             listaAssentos[i].ocupado = 1;
-            listaAssentos[i].numero = i;
+            listaAssentos[i].numero = i+1;
         } else {
             listaAssentos[i].ocupado = 0;
-            listaAssentos[i].numero = i;
+            listaAssentos[i].numero = i+1;
         }
     }
 }
@@ -24,10 +24,10 @@ int reservarAssento( int numAssento, Voo *voo ) {
 
     for(i=0; i<TOTAL_ASSENTOS; i++) {
         if(voo->listaAssentos[i].numero == numAssento) {
-            if(voo->listaAssentos->ocupado == 1) {
+            if(voo->listaAssentos[i].ocupado == 1) {
                 return -1; // Falha ao reservar assento, assento ocupado
             } else {
-                voo->listaAssentos->ocupado = 1;
+                voo->listaAssentos[i].ocupado = 1;
                 return 1; // Assento reservado com sucesso
             }
         }
@@ -60,7 +60,13 @@ Voo *carregarVoos( char *Arquivo ) {
     Voo *voos = (Voo*)malloc(TOTAL_VOOS*sizeof(Voo));
 
     for(i=0; i<TOTAL_VOOS; i++) {
-        fscanf(f, "%d %s %s %d", &voos[i].id, voos[i].destino, voos[i].origem, voos[i].qtdAssentosOcupados);
+        if(fscanf(f, "%d %s %s %d", &voos[i].id, voos[i].destino, voos[i].origem, voos[i].qtdAssentosOcupados) != 4) {
+            printf("Erro ao ler voo %d\n", i);
+            
+            free(voos);
+            fclose(f);
+            return NULL;
+        }
         inicializarAssentos(voos[i].listaAssentos, voos[i].qtdAssentosOcupados);
     }
 
