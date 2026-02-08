@@ -61,12 +61,12 @@ Voo *carregarVoos( char *Arquivo ) {
 
     for(i=0; i<TOTAL_VOOS; i++) {
         if(fscanf(f, "%d %s %s %d", &voos[i].id, voos[i].destino, voos[i].origem, voos[i].qtdAssentosOcupados) != 4) {
-            printf("Erro ao ler voo %d\n", i);
             
             free(voos);
             fclose(f);
             return NULL;
         }
+        voos[i].listaAssentos = malloc(TOTAL_ASSENTOS * sizeof(Assento));
         inicializarAssentos(voos[i].listaAssentos, voos[i].qtdAssentosOcupados);
     }
 
@@ -82,4 +82,32 @@ int qtdAssentosLivres( Voo *voo ) {
     }
 
     return count;
+}
+
+Voo *buscarVooPorId( Voo *listaVoos, int idVoo) {
+    int i;
+
+    for(i=0; i<TOTAL_VOOS; i++) {
+        if(listaVoos[i].id == idVoo) return &listaVoos[i];
+    }
+
+    printf("Não existe um voo com esse id!\n");
+    return NULL;
+}
+
+void exibirVoos( Voo *listaVoos ) {
+    int i;
+
+    printf("=====================================\n");
+    printf("       VOOS DISPONIVEIS               \n");
+    printf("=====================================\n");
+    for(i=0; i<TOTAL_VOOS; i++) {
+        printf("Voo (ID %d):\n", listaVoos[i].id);
+        printf("- Destino: %s\n", listaVoos[i].destino);
+        printf("- Origem: %s\n", listaVoos[i].origem);
+        printf("- Número de assentos disponiveis: %d\n", qtdAssentosLivres(&listaVoos[i]));
+        printf("-----------------------------------------\n");
+    }
+
+    //colocar dentro do for a função de exibir assentos
 }

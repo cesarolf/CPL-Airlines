@@ -17,7 +17,7 @@ typedef struct Voo {
     char destino[50];
     char origem[50];
     int qtdAssentosOcupados;
-    Assento listaAssentos[TOTAL_ASSENTOS];
+    Assento *listaAssentos;
 } Voo;
 
 typedef struct Passageiro {
@@ -35,8 +35,12 @@ int reservarAssento( int numAssento, Voo *voo );
 
 int liberarAssento( Voo *voo, int numAssento );
 
-void mostrarAssentos(Assento *listaAssentos, Voo *voo);
+void mostrarAssentos( Assento *listaAssentos, Voo *voo );
 
 Voo *carregarVoos( char *Arquivo );
 
 int qtdAssentosLivres( Voo *voo );
+
+Voo *buscarVooPorId( Voo *listaVoos, int idVoo );
+
+void exibirVoos( Voo *listaVoos );
