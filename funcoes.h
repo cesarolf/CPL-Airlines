@@ -44,3 +44,5 @@ int qtdAssentosLivres( Voo *voo );
 Voo *buscarVooPorId( Voo *listaVoos, int idVoo );
 
 void exibirVoos( Voo *listaVoos );
+
+Passageiro* cadastrarPassageiro( Passageiro *lista );
