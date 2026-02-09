@@ -33,7 +33,8 @@ int main() {
 
         switch(op) {
             case 1:
-                //função cadastrar passageiros
+                passageiros = cadastrarPassageiro(passageiros);
+                printf("\nPassageiro cadastrado com sucesso!\n");                
                 break;
             case 2:
                 int op2;
@@ -69,15 +70,9 @@ int main() {
                 //função cancelar passagem e dentro dela a de liberar assento
                 break;
             case 4:
-
-
+                break;
         }
-
-
-
     } while(op != 0);
     
-    
-
-
+    return 0;
 }
