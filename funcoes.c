@@ -111,3 +111,24 @@ void exibirVoos( Voo *listaVoos ) {
 
     //colocar dentro do for a função de exibir assentos
 }
+
+// lista encadeada de passageiros
+Passageiro* cadastrarPassageiro(Passageiro *lista) {
+    Passageiro *novo = (Passageiro*)malloc(sizeof(Passageiro));
+    if (novo == NULL) return lista;
+
+    printf("ID do Passageiro: ");
+    scanf("%d", &novo->id);
+    printf("Nome: ");
+    scanf(" %[^\n]", novo->nome);
+    printf("Idade: ");
+    scanf("%d", &novo->idade);
+    
+    // inicialmente sem passagens vinculadas
+    novo->passagens = NULL; 
+    
+    // Big O(1) pq ta cadastrando no inicio da lista, entao nao precisa percorrer o vetor    
+    novo->prox = lista;
+    
+    return novo;
+}
