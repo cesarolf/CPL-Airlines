@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "funcoes.h"
 
 int main() {
@@ -11,6 +12,7 @@ int main() {
     Passagem *passagens = NULL;
     
     int op;
+    /*
     do {
 
         MENU();
@@ -65,6 +67,29 @@ int main() {
                 break;
         }
     } while(op != 0);
-    
+    */
+
+    // Rascunho novo menu:
+    do {
+
+        MENU();
+        scanf("%d", &op);
+
+        switch(op) {
+            case 1:
+                menuCadastro(&passageiros);
+                break;
+            case 2:
+                menuCancelamento(voosDisponiveis, &passagens);
+                break;
+            case 3:
+                menuVisualizacao(voosDisponiveis, passagens);
+                break;
+            default:
+                printf("Opção inválida, por favor selecione outra.\n");
+                break;
+        }
+    } while(op != 0);
+
     return 0;
 }

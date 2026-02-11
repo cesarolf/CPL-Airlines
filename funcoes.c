@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "funcoes.h"
 
 void inicializarAssentos( Assento *listaAssentos, int qtdAssentosOcupados ) {
@@ -180,6 +181,8 @@ void mostrarAssentos( Assento *listaAssentos ){
 }
 
 void MENU(){
+    // Menu antigo
+    /*
     printf("=====================================================\n");
     printf("|                                                   |\n");
     printf("|               ✈️  CPL AIRLINES  ✈️                  |\n");
@@ -196,4 +199,204 @@ void MENU(){
     printf("|                                                   |\n");
     printf("=====================================================\n");
     printf("Escolha uma opcao: ");
+    */
+    // Menu novo
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("|               ✈️  CPL AIRLINES  ✈️                  |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("|                 __|__                             |\n");
+    printf("|        --o--o--(_)--o--o--                        |\n");
+    printf("|                                                   |\n");
+    printf("| 1 - Cadastro                                      |\n");
+    printf("| 2 - Cancelamento                                  |\n");
+    printf("| 3 - Menu de visualizacao                          |\n");
+    printf("| 0 - Sair                                          |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("Escolha uma opcao: ");
+}
+
+void MenuCadastro (Passageiro **passageiros){
+    *passageiros = cadastrarPassageiro(*passageiros);
+}
+
+
+void menuCancelamento(Voo *voos, Passagem **passagens){
+    int op;
+    int idVoo, numAssento;
+
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("|                   CANCELAMENTO                    |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("| 1 - Cancelar assento                              |\n");
+    printf("| 2 - Cancelar viagem                               |\n");
+    printf("| 0 - Voltar                                        |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("Opcao: ");
+    scanf(" %d", &op);
+
+    switch(op) {
+        case 1:
+            printf("ID do voo: ");
+            scanf("%d", &idVoo);
+
+            Voo *voo = buscarVooPorId(voos, idVoo);
+            if (voo == NULL) return;
+
+            printf("Numero do assento: ");
+            scanf("%d", &numAssento);
+
+            if (liberarAssento(voo, numAssento))
+                printf("Assento liberado com sucesso!\n");
+            else
+                printf("Erro ao liberar assento.\n");
+            break;
+
+        case 2:
+            printf("ID do voo: ");
+            scanf("%d", &idVoo);
+
+            Voo *v = buscarVooPorId(voos, idVoo);
+            if (v == NULL) return;
+
+            printf("Numero do assento: ");
+            scanf("%d", &numAssento);
+
+            *passagens = cancelarPassagem(*passagens, v, numAssento);
+            printf("Viagem cancelada.\n");
+            break;
+
+        case 0:
+            return;
+        default:
+            printf("Opcao invalida!\n");
+            break;
+    }
+}
+
+void menuVisualizacao(Voo *voos, Passagem *passagens){
+    int op;
+
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("|                   VISUALIZACAO                    |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("| 1 - Voos                                          |\n");
+    printf("| 2 - Suas passagens                                |\n");
+    printf("| 0 - Voltar                                        |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("Opcao: ");
+    scanf(" %d", &op);
+
+    switch(op) {
+        case 1:
+            exibirVoos(voos);
+            break;
+        case 2:
+            listarPassagens(passagens);
+            break;
+        case 0:
+            return;
+        default:
+            printf("Opcao invalida!\n");
+            break;
+    }
+}
+
+Passagem* criarPassagem( Passageiro *passageiros, Voo *voo, int numAssento, Passagem **listaPassagens ){
+    int id;
+    Passageiro *p = passageiros;
+
+    if (p == NULL) {
+        printf("Nenhum passageiro cadastrado.\n");
+        return NULL;
+    }
+
+    printf("ID do passageiro: ");
+    scanf("%d", &id);
+
+    while (p != NULL && p->id != id) {
+        p = p->prox;
+    }
+
+    if (p == NULL) {
+        printf("Passageiro nao encontrado.\n");
+        return NULL;
+    }
+
+    Passagem *nova = malloc(sizeof(Passagem));
+    if (nova == NULL) return NULL;
+
+    strcpy(nova->nomePassageiro, p->nome);
+    nova->idVoo = voo->id;
+    nova->numAssento = numAssento;
+    double preco;
+    printf("Qual o preço da passagem: ");
+    scanf("%lf", &preco);
+    nova->preco = preco;
+
+    nova->prox = NULL;
+
+    nova->prox = *listaPassagens;
+    *listaPassagens = nova;
+
+    printf("Passagem criada com sucesso!\n");
+    return nova;
+}
+
+Passagem* cancelarPassagem(Passagem *lista, Voo *voo, int numAssento) {
+    Passagem *atual = lista;
+    Passagem *anterior = NULL;
+
+    while (atual != NULL) {
+        if (atual->idVoo == voo->id && atual->numAssento == numAssento) {
+
+            liberarAssento(voo, numAssento);
+
+            if (anterior == NULL) {
+                lista = atual->prox; // remove primeiro
+            } else {
+                anterior->prox = atual->prox;
+            }
+
+            free(atual);
+            printf("Passagem cancelada com sucesso.\n");
+            return lista;
+        }
+
+        anterior = atual;
+        atual = atual->prox;
+    }
+
+    printf("Passagem nao encontrada.\n");
+    return lista;
+}
+
+void listarPassagens(Passagem *lista) {
+    if (lista == NULL) {
+        printf("Nenhuma passagem cadastrada.\n");
+        return;
+    }
+
+    printf("=====================================\n");
+    printf("        PASSAGENS CADASTRADAS      \n");
+    printf("=====================================\n");
+
+    while (lista != NULL) {
+        printf("Voo ID: %d\n", lista->idVoo);
+        printf("Assento: %d\n", lista->numAssento);
+        printf("Preco: R$ %.2lf\n", lista->preco);
+        printf("Passageiro: %s\n", lista->nomePassageiro);
+        printf("-------------------------------------\n");
+        lista = lista->prox;
+    }
 }

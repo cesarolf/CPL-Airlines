@@ -5,10 +5,11 @@
 #define TOTAL_VOOS 10
 
 typedef struct Passagem {
-    char nomePassageiro[50]; // A passagem n precisa do nome do passageiro não, vários
+    char nomePassageiro[50]; // Acho que a passagem n precisa do nome do passageiro não, vários
     double preco;            // passageiros podem ter uma passagem igual
     int idVoo;
     int numAssento;
+    struct Passagem *prox;
 } Passagem;
 
 typedef struct Assento { // será uma lista estática
@@ -52,5 +53,17 @@ void exibirVoos( Voo *listaVoos );
 Passageiro* cadastrarPassageiro( Passageiro *lista );
 
 void MENU();
+
+void MenuCadastro( Passageiro ** passageiros );
+
+void menuCancelamento( Voo *voos, Passagem **passagens );
+
+void menuVisualizacao( Voo *voos, Passagem *passagens );
+
+Passagem* criarPassagem( Passageiro *passageiros, Voo *voo, int numAssento, Passagem **listaPassagens );
+
+Passagem* cancelarPassagem( Passagem *lista, Voo *voo, int numAssento );
+
+void listarPassagens(Passagem *lista);
 
 #endif
