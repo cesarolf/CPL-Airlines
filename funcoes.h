@@ -1,8 +1,12 @@
+#ifndef FUNCOES_H
+#define FUNCOES_H
+
 #define TOTAL_ASSENTOS 180
+#define TOTAL_VOOS 10
 
 typedef struct Passagem {
-    char nomePassageiro[50];
-    double preco;
+    char nomePassageiro[50]; // A passagem n precisa do nome do passageiro não, vários
+    double preco;            // passageiros podem ter uma passagem igual
     int idVoo;
     int numAssento;
 } Passagem;
@@ -35,14 +39,18 @@ int reservarAssento( int numAssento, Voo *voo );
 
 int liberarAssento( Voo *voo, int numAssento );
 
-void mostrarAssentos( Assento *listaAssentos, Voo *voo );
-
-Voo *carregarVoos( char *Arquivo );
+void mostrarAssentos( Assento *listaAssentos );
 
 int qtdAssentosLivres( Voo *voo );
+
+Voo *carregarVoos( char *Arquivo );
 
 Voo *buscarVooPorId( Voo *listaVoos, int idVoo );
 
 void exibirVoos( Voo *listaVoos );
 
 Passageiro* cadastrarPassageiro( Passageiro *lista );
+
+void MENU();
+
+#endif

@@ -13,22 +13,7 @@ int main() {
     int op;
     do {
 
-        printf("=====================================================\n");
-        printf("|                                                   |\n");
-        printf("|               ✈️  CPL AIRLINES  ✈️                  |\n");
-        printf("|                                                   |\n");
-        printf("=====================================================\n");
-        printf("|                 __|__                             |\n");
-        printf("|        --o--o--(_)--o--o--                        |\n");
-        printf("|                                                   |\n");
-        printf("| 1 - Cadastrar passageiros                         |\n");
-        printf("| 2 - Visualizar voos disponiveis                   |\n");
-        printf("| 3 - Cancelar viagem                               |\n");
-        printf("| 4 - Visualizar passagens                          |\n");
-        printf("| 0 - Sair                                          |\n");
-        printf("|                                                   |\n");
-        printf("=====================================================\n");
-        printf("Escolha uma opcao: ");
+        MENU();
         scanf("%d", &op);
 
         switch(op) {
@@ -41,7 +26,7 @@ int main() {
                 exibirVoos(voosDisponiveis);
                 
                 printf("1 - Comprar passagem\n");
-                printf("0 - Sair\n");
+                printf("0 - Voltar\n");
                 printf("Escolha uma opcao: ");
                 scanf("%d", &op2);
                 switch(op2) {
@@ -54,6 +39,10 @@ int main() {
                         printf("\nInforme o numero do assento que deseja reservar: ");
                         scanf("%d", &numAssento);
                         voo = buscarVooPorId(voosDisponiveis, id);
+                        if (voo == NULL) {
+                            printf("Voo invalido!\n");         // Correção do segmentation fault
+                            break;
+                        }
                         resultado = reservarAssento(numAssento, voo);
                         if(resultado == 1) printf("\nAssento reservado com sucesso!");
                         else printf("\nO assento informado esta ocupado!");
@@ -70,6 +59,9 @@ int main() {
                 //função cancelar passagem e dentro dela a de liberar assento
                 break;
             case 4:
+                break;
+            default:
+                printf("Opção inválida, por favor selecione outra.\n");
                 break;
         }
     } while(op != 0);
