@@ -1,96 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "funcoes.h"
 
 void inicializarAssentos( Assento *listaAssentos, int qtdAssentosOcupados ) {
-    int i;
+    int i, ocupado = 0;
 
     for(i = 0; i<TOTAL_ASSENTOS; i++) {
-        if(i<qtdAssentosOcupados) {           // Esse if pode estar colocando acentos vagos como ocupados, não?
-            listaAssentos[i].ocupado = 1;     // Olha ali em baixo se fica melhor
-            listaAssentos[i].numero = i+1;
-        } else {
-            listaAssentos[i].ocupado = 0;
-            listaAssentos[i].numero = i+1;
-        }
-    }
-}
-/*
-void inicializarAssentos(Assento *listaAssentos) {
-    for(int i = 0; i < TOTAL_ASSENTOS; i++) {
-        listaAssentos[i].numero = i + 1;
+        listaAssentos[i].numero = i+1;
         listaAssentos[i].ocupado = 0;
     }
+    while(ocupado<qtdAssentosOcupados) {
+        i = rand()%TOTAL_ASSENTOS;
+        if(listaAssentos[i].ocupado == 0) {
+            listaAssentos[i].ocupado = 1;
+            ocupado++;
+        }
+    }
 }
-*/
 
 int reservarAssento( int numAssento, Voo *voo ) {
-    int i;
 
-    for(i=0; i<TOTAL_ASSENTOS; i++) {
-        if(voo->listaAssentos[i].numero == numAssento) {
-            if(voo->listaAssentos[i].ocupado == 1) {
-                return -1; // Falha ao reservar assento, assento ocupado
-            } else {
-                voo->listaAssentos[i].ocupado = 1;
-                return 1; // Assento reservado com sucesso
-            }
-        }
+    if ( numAssento > TOTAL_ASSENTOS || numAssento < 1 ) return 0;   // Não existe assento com esse número
+    else if ( voo->listaAssentos[numAssento-1].ocupado == 1 ) return -1;  // Falha ao reservar assento, assento ocupado
+    else  {
+        voo->listaAssentos[numAssento-1].ocupado = 1;
+        return 1;// Assento reservado com sucesso
     }
 
     return 0; // Não existe assento com esse número
-
-    // Da pra diminuir a complexidade se fizer assim ou nada haver?
-    /*
-    if ( numAssento > TOTAL_ASSENTOS || numAssento < 0 ) return 0;   // Não existe assento com esse número
-    else if ( voo->listaAssentos[numAssento-1].ocupado == 1 ) return -1;  // Falha ao reservar assento, assento ocupado
-    else voo->listaAssentos[numAssento-1].ocupado = 1;
-        return 1;// Assento reservado com sucesso
-    */
 }
 
 int liberarAssento( Voo *voo, int numAssento ) {
-    int i;
     
-    for(i = 0; i<TOTAL_ASSENTOS; i++) {
-        if(voo->listaAssentos[i].numero == numAssento) {
-            voo->listaAssentos[i].ocupado = 0;
-            return 1; // Assento liberado com sucesso
-        }
-    }
-    return -1; // Não existe assento com esse número
-
-    // Mesma coisa aqui, acho que tem como melhorar
-    /*
-    if ( numAssento > TOTAL_ASSENTOS || numAssento < 0 ) return -1; // Não existe
-    else voo->listaAssentos[numAssento-1].ocupado = 0; // Liberado com sucesso
-    */
+    if ( numAssento > TOTAL_ASSENTOS || numAssento < 1 ) return -1; // Não existe
+    if ( voo->listaAssentos[numAssento-1].ocupado == 0 ) return 0;
+    
+    voo->listaAssentos[numAssento-1].ocupado = 0; // Liberado com sucesso
+    return 1;
 }
 
-Voo *carregarVoos( char *Arquivo ) {
-    int i;
-    FILE *f = fopen(Arquivo, "r");
-
-    if( f == NULL) {
-        printf("Erro ao carregar os voos\n");
+Voo *carregarVoos() {
+    char origem[TOTAL_VOOS][50] = {
+        "Goiania", "Goiania", "Brasilia", "Goiania", "Brasilia", 
+        "Brasilia","Brasilia", "Goiania", "Goiania", "Brasilia"
+    };
+    char destino[TOTAL_VOOS][50] = {
+        "Sao Paulo", "Rio De Janeiro", "Salvador", "Fortaleza", "Curitiba",
+        "Recife", "Belo Horizonte", "Porto Alegre", "Manaus", "Belem"
+    };
+    int AssentosOcupados[TOTAL_VOOS] = {36, 96, 28, 73, 32, 44, 21, 53, 20, 19};
+    Voo *voos = (Voo*)malloc(TOTAL_VOOS*sizeof(Voo));
+    if (voos == NULL) {
+        printf("Erro de memoria\n");
         return NULL;
     }
-
-    Voo *voos = (Voo*)malloc(TOTAL_VOOS*sizeof(Voo));
+    int i;
 
     for(i=0; i<TOTAL_VOOS; i++) {
-        if(fscanf(f, "%d %s %s %d", &voos[i].id, voos[i].destino, voos[i].origem, voos[i].qtdAssentosOcupados) != 4) {
-            
-            free(voos);
-            fclose(f);
-            return NULL;
-        }
-        voos[i].listaAssentos = malloc(TOTAL_ASSENTOS * sizeof(Assento));
-        inicializarAssentos(voos[i].listaAssentos, voos[i].qtdAssentosOcupados);
+        voos[i].id = i+1;
+        strcpy(voos[i].origem, origem[i]);
+        strcpy(voos[i].destino, destino[i]);
+        voos[i].qtdAssentosOcupados = AssentosOcupados[i];
+        inicializarAssentos(voos[i].listaAssentos, AssentosOcupados[i]);
     }
-
-    fclose(f);
+                     
     return voos;
 }
 
@@ -127,11 +102,9 @@ void exibirVoos( Voo *listaVoos ) {
         printf("- Origem: %s\n", listaVoos[i].origem);
         printf("- Número de assentos disponiveis: %d\n", qtdAssentosLivres(&listaVoos[i]));
         printf("-----------------------------------------\n");
-        mostrarAssentos( listaVoos[i].listaAssentos);
     }
+    menuVoos(listaVoos);
 
-    //colocar dentro do for a função de exibir assentos
-    //colocado
 }
 
 // lista encadeada de passageiros
@@ -153,6 +126,18 @@ Passageiro* cadastrarPassageiro(Passageiro *lista) {
     novo->prox = lista;
     
     return novo;
+}
+
+Passageiro *buscarPassageiroPorId(Passageiro *listaPassageiros, int idPassageiro) {
+
+    while(listaPassageiros != NULL) {
+        if(listaPassageiros->id == idPassageiro) {
+            return listaPassageiros;
+        }
+        listaPassageiros = listaPassageiros->prox;
+    }
+
+    return NULL;
 }
 
 void mostrarAssentos( Assento *listaAssentos ){
@@ -181,26 +166,6 @@ void mostrarAssentos( Assento *listaAssentos ){
 }
 
 void MENU(){
-    // Menu antigo
-    /*
-    printf("=====================================================\n");
-    printf("|                                                   |\n");
-    printf("|               ✈️  CPL AIRLINES  ✈️                  |\n");
-    printf("|                                                   |\n");
-    printf("=====================================================\n");
-    printf("|                 __|__                             |\n");
-    printf("|        --o--o--(_)--o--o--                        |\n");
-    printf("|                                                   |\n");
-    printf("| 1 - Cadastrar passageiros                         |\n");
-    printf("| 2 - Visualizar voos disponiveis                   |\n");
-    printf("| 3 - Cancelar viagem                               |\n");
-    printf("| 4 - Visualizar passagens                          |\n");
-    printf("| 0 - Sair                                          |\n");
-    printf("|                                                   |\n");
-    printf("=====================================================\n");
-    printf("Escolha uma opcao: ");
-    */
-    // Menu novo
     printf("=====================================================\n");
     printf("|                                                   |\n");
     printf("|               ✈️  CPL AIRLINES  ✈️                  |\n");
@@ -212,16 +177,16 @@ void MENU(){
     printf("| 1 - Cadastro                                      |\n");
     printf("| 2 - Cancelamento                                  |\n");
     printf("| 3 - Menu de visualizacao                          |\n");
+    printf("| 4 - Reservar assento                              |\n");
     printf("| 0 - Sair                                          |\n");
     printf("|                                                   |\n");
     printf("=====================================================\n");
     printf("Escolha uma opcao: ");
 }
 
-void MenuCadastro (Passageiro **passageiros){
+void menuCadastro (Passageiro **passageiros){
     *passageiros = cadastrarPassageiro(*passageiros);
 }
-
 
 void menuCancelamento(Voo *voos, Passagem **passagens){
     int op;
@@ -280,7 +245,62 @@ void menuCancelamento(Voo *voos, Passagem **passagens){
     }
 }
 
-void menuVisualizacao(Voo *voos, Passagem *passagens){
+void menuVoos(Voo *voos){
+    int op;
+    int idVoo;
+
+    printf("=====================================================\n");
+    printf("|                                                   |\n");
+    printf("| Deseja visualizar os assentos de um voo?          |\n");
+    printf("| (1 - Sim | 0 - Nao)                               |\n");
+    printf("|                                                   |\n");
+    printf("=====================================================\n");
+    printf("Opcao: ");
+    scanf(" %d", &op);
+
+    switch(op) {
+        case 1:
+            printf("ID do voo: ");
+            scanf("%d", &idVoo);
+
+            Voo *voo = buscarVooPorId(voos, idVoo);
+            if (voo == NULL) return;
+
+            mostrarAssentos(voo->listaAssentos);
+            break;
+        case 0:
+            return;
+        default:
+            printf("Opcao invalida!\n");
+            break;
+    }
+}
+
+void menuCompra(Voo *voos, Passageiro *listaPassageiros, Passagem **listaPassagens){
+    
+    int idVoo, ocup;
+    int numAssento, idPassageiro;
+    
+    printf("ID do voo: ");
+    scanf("%d", &idVoo);
+    printf("\nQual o número do assento que deseja reservar?\n");
+    scanf("%d", &numAssento);
+
+    Voo *voo = buscarVooPorId(voos, idVoo);
+    if (voo == NULL) return;
+
+    ocup = reservarAssento(numAssento, voo);
+    while(ocup == 0 || ocup == -1) {
+        printf("Assento ocupado ou invalido!\n");
+        printf("Escolha um novo assento: \n");
+        scanf("%d", &numAssento);
+        ocup = reservarAssento(numAssento, voo);
+    }
+    criarPassagem(listaPassageiros, voo, numAssento);
+}
+
+
+void menuVisualizacao(Voo *voos, Passagem *passagens, Passageiro *listaPassageiros){
     int op;
 
     printf("=====================================================\n");
@@ -302,7 +322,11 @@ void menuVisualizacao(Voo *voos, Passagem *passagens){
             exibirVoos(voos);
             break;
         case 2:
-            listarPassagens(passagens);
+            int idPassageiro;
+            printf("\nInforme o seu id: ");
+            scanf("%d", &idPassageiro);
+            Passageiro *passageiro = buscarPassageiroPorId(listaPassageiros, idPassageiro);
+            listarPassagens(passageiro->passagens);
             break;
         case 0:
             return;
@@ -312,7 +336,7 @@ void menuVisualizacao(Voo *voos, Passagem *passagens){
     }
 }
 
-Passagem* criarPassagem( Passageiro *passageiros, Voo *voo, int numAssento, Passagem **listaPassagens ){
+Passagem* criarPassagem( Passageiro *passageiros, Voo *voo, int numAssento ){
     int id;
     Passageiro *p = passageiros;
 
@@ -346,8 +370,8 @@ Passagem* criarPassagem( Passageiro *passageiros, Voo *voo, int numAssento, Pass
 
     nova->prox = NULL;
 
-    nova->prox = *listaPassagens;
-    *listaPassagens = nova;
+    nova->prox = p->passagens;
+    p->passagens = nova;
 
     printf("Passagem criada com sucesso!\n");
     return nova;
