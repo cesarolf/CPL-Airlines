@@ -20,7 +20,7 @@ Desenvolver um sistema em C para gerenciamento de passagens aéreas, permitindo:
 -  Listas encadeadas
 -  Alocação dinâmica
 -  Modularização
--  Busca
+-  Busca binária
 
 . Estrutura:
 
